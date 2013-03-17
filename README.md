@@ -13,7 +13,7 @@ Socket output streams making it easier to publish messages to clients.
 ## Build ##
 
 The project can be built:
-* by opening the project in NetBeans and using the *Run->Build* Project command
+* by opening the project in NetBeans and using the *Run->Build Project* command
   (F11)
 * using the supplied ant scripts from the command line
 
