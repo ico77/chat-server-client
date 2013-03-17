@@ -13,10 +13,11 @@ Socket output streams making it easier to publish messages to clients.
 ## Build ##
 
 The project can be built:
-* by opening the project in NetBeans and using the *Run->Build Project* command
++ by opening the project in NetBeans and using the *Run->Build Project* command
   (F11)
-* using the supplied ant scripts from the command line
++ using the supplied ant scripts from the command line
 
-After building and packaging the project use the following commands to run the server and client:
-Server: `java -classpath JavaChat.jar:lib/* hr.ivica.chat.server.ChatServer`
+After building and packaging the project use the following commands to run the
+server and client:  
+Server: `java -classpath JavaChat.jar:lib/* hr.ivica.chat.server.ChatServer`  
 Client: `java -classpath JavaChat.jar:lib/* hr.ivica.chat.client.ChatClient`
