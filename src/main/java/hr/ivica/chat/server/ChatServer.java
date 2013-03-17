@@ -38,11 +38,7 @@ public class ChatServer {
     public Map<Socket, PrintWriter> getOutputWriters() {
         return outputWriters;
     }
-    
-    public static Logger getLogger() {
-        return logger;
-    }
-    
+            
     /**
      * Starts the server by opening a server socket
      * and listening for connections
@@ -55,7 +51,7 @@ public class ChatServer {
             logger.info("Server listening on port {}", listenSocket.getLocalPort());
             while(true) {
                 Socket socket = listenSocket.accept();
-                logger.info("Accepted connection on Socket" + socket.toString());
+                logger.info("Accepted connection on Socket: {}", socket.toString());
                 
                 // create a PrintWriter and cache it in a Map 
                 outputWriters.put(socket, new PrintWriter(socket.getOutputStream(), true));
@@ -88,7 +84,7 @@ public class ChatServer {
         try {
             s.close();
         } catch (IOException ioe) {
-            logger.info("Closed connection to {}", s.toString());
+            logger.error("Exception while closing connection to {}: {}", s.toString(), ioe.toString());
         }
         
     }
