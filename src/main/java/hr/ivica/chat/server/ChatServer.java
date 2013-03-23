@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ChatServer {
     private int port;
-    private Map<Socket, PrintWriter> outputWriters;
+    private final Map<Socket, PrintWriter> outputWriters;
     private static Logger logger = LogManager.getLogger(ChatServer.class.getName());
      
     /**
@@ -32,13 +32,9 @@ public class ChatServer {
      */
     public ChatServer(int port) {
         this.port = port;
-        this.outputWriters = new ConcurrentHashMap<>();
+        this.outputWriters = new HashMap<>();
     }
-    
-    public Map<Socket, PrintWriter> getOutputWriters() {
-        return outputWriters;
-    }
-            
+                    
     /**
      * Starts the server by opening a server socket
      * and listening for connections
@@ -54,39 +50,31 @@ public class ChatServer {
                 logger.info("Accepted connection on Socket: {}", socket.toString());
                 
                 // create a PrintWriter and cache it in a Map 
-                outputWriters.put(socket, new PrintWriter(socket.getOutputStream(), true));
-                logger.debug("Number of active connections: {}", getOutputWriters().size());
-                
+                synchronized (outputWriters) {
+                    outputWriters.put(socket, new PrintWriter(socket.getOutputStream(), true));
+                    logger.debug("Number of active connections: {}", outputWriters.size());
+                }
                 // handle client in new thread
                 tasks.execute(new ChatServerWorker(socket, this));
             }
         } catch(IOException e) {
-            closeAllConnections();
             logger.fatal(e.toString());
         } 
     }
-    
-    /**
-     * Closes all client connections
-     */
-    public void closeAllConnections() {
-        for (Socket s: outputWriters.keySet()) {
-            closeConnection(s);
-        }
-    }
-    
+        
     /**
      * Closes a single client connection
      * @param s socket to close
      */
     public void closeConnection(Socket s) {
-        outputWriters.remove(s);
-        try {
-            s.close();
-        } catch (IOException ioe) {
-            logger.error("Exception while closing connection to {}: {}", s.toString(), ioe.toString());
+        synchronized (outputWriters) {
+            outputWriters.remove(s);
+            try {
+                s.close();
+            } catch (IOException ioe) {
+                logger.error("Exception while closing connection to {}: {}", s.toString(), ioe.toString());
+            }
         }
-        
     }
     
     /**
@@ -94,8 +82,10 @@ public class ChatServer {
      * @param line the message to be sent
      */
     void sendToAll(String line) {
-        for (PrintWriter pw: outputWriters.values()) {
-            pw.println(line);
+        synchronized (outputWriters) {
+            for (PrintWriter pw: outputWriters.values()) {
+                pw.println(line);
+            }
         }
     }
     

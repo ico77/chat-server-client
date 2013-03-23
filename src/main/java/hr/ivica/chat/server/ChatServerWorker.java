@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -17,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 public class ChatServerWorker implements Runnable{
     private Socket socket;
     private ChatServer server;
-    private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(ChatServerWorker.class.getName());
+    private static final Logger logger = LogManager.getLogger(ChatServerWorker.class.getName());
 
     public ChatServerWorker(Socket socket, ChatServer server) {
         this.socket = socket;
