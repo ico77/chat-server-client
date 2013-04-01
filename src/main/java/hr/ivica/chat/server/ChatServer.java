@@ -1,13 +1,18 @@
 package hr.ivica.chat.server;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,25 +26,42 @@ import org.apache.logging.log4j.Logger;
  * @author ivica
  */
 public class ChatServer {
-    private int port;
-    private final Map<Socket, PrintWriter> outputWriters;
-    private static Logger logger = LogManager.getLogger(ChatServer.class.getName());
      
     /**
      * Initializes ChatServer 
-     * @param port - port which will be used to listen for connections
-     *          
+     *           
      */
-    public ChatServer(int port) {
-        this.port = port;
+    public ChatServer() {
+        Properties properties = loadProperties();
+        
+        this.port = Integer.parseInt(properties.getProperty("port"));
         this.outputWriters = new HashMap<>();
+        
+        
     }
-                    
+    
+    /**
+     * Loads properties which are used to configure the server
+     * @return properties
+     */
+    private Properties loadProperties() {
+        Properties properties = new Properties();
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("server_config.properties");
+        
+        try {
+          properties.load(in);
+        } catch (IOException e) {
+          properties.setProperty("port", String.valueOf(defaultPort));
+          logger.error(e);
+          logger.info("Using default values fo configuring the server");
+        }
+        return properties;
+    }
     /**
      * Starts the server by opening a server socket
      * and listening for connections
      */
-    public void start() {
+    public void start() throws IOException {
         int poolSize = 20 * Runtime.getRuntime().availableProcessors();
         ExecutorService tasks = Executors.newFixedThreadPool(poolSize);
         
@@ -59,6 +81,7 @@ public class ChatServer {
             }
         } catch(IOException e) {
             logger.fatal(e.toString());
+            throw e;
         } 
     }
         
@@ -92,9 +115,13 @@ public class ChatServer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        ChatServer server = new ChatServer(55555);
+    public static void main(String[] args) throws IOException {
+        ChatServer server = new ChatServer();
         server.start();
     }
    
+    private int port;
+    private final Map<Socket, PrintWriter> outputWriters;
+    private static final int defaultPort = 55555;
+    private static Logger logger = LogManager.getLogger(ChatServer.class.getName());
 }

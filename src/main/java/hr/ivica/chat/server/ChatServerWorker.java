@@ -16,15 +16,16 @@ import org.apache.logging.log4j.Logger;
  * @author ivica
  */
 public class ChatServerWorker implements Runnable{
-    private Socket socket;
-    private ChatServer server;
-    private static final Logger logger = LogManager.getLogger(ChatServerWorker.class.getName());
-
+    
     public ChatServerWorker(Socket socket, ChatServer server) {
         this.socket = socket;
         this.server = server;
     }
 
+    /**
+     * Listens for incoming messages and distributes them to all
+     * registered clients
+     */
     @Override
     public void run() {
         try {
@@ -43,5 +44,7 @@ public class ChatServerWorker implements Runnable{
         }
     }
     
-    
+    private Socket socket;
+    private ChatServer server;
+    private static final Logger logger = LogManager.getLogger(ChatServerWorker.class.getName());
 }
