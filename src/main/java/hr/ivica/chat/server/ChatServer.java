@@ -1,7 +1,5 @@
 package hr.ivica.chat.server;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -12,65 +10,64 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  *
- * ChatServer is a multi-threaded chat server. It listens on a predefined port
- * and creates threads for managing connected clients. It caches output streams
- * to connected clients, making it easier to "publish" an incoming message to
- * all connected clients
- * 
+ * ChatServer is a multi-threaded chat server. It listens on a predefined port and creates threads for managing
+ * connected clients. It caches output streams to connected clients, making it easier to "publish" an incoming message
+ * to all connected clients
+ *
  * @author ivica
  */
 public class ChatServer {
-     
+
     /**
-     * Initializes ChatServer 
-     *           
+     * Initializes ChatServer
+     *
      */
     public ChatServer() {
         Properties properties = loadProperties();
-        
+
         this.port = Integer.parseInt(properties.getProperty("port"));
         this.outputWriters = new HashMap<>();
-        
-        
+
+
     }
-    
+
     /**
      * Loads properties which are used to configure the server
+     *
      * @return properties
      */
     private Properties loadProperties() {
         Properties properties = new Properties();
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("server_config.properties");
-        
+
         try {
-          properties.load(in);
+            properties.load(in);
         } catch (IOException e) {
-          properties.setProperty("port", String.valueOf(defaultPort));
-          logger.error(e);
-          logger.info("Using default values fo configuring the server");
+            properties.setProperty("port", String.valueOf(defaultPort));
+            logger.error(e);
+            logger.info("Using default values fo configuring the server");
         }
         return properties;
     }
+
     /**
-     * Starts the server by opening a server socket
-     * and listening for connections
+     * Starts the server by opening a server socket and listening for connections
      */
     public void start() throws IOException {
         int poolSize = 20 * Runtime.getRuntime().availableProcessors();
         ExecutorService tasks = Executors.newFixedThreadPool(poolSize);
-        
+
         try (ServerSocket listenSocket = new ServerSocket(port);) {
             logger.info("Server listening on port {}", listenSocket.getLocalPort());
-            while(true) {
+            while (true) {
                 Socket socket = listenSocket.accept();
                 logger.info("Accepted connection on Socket: {}", socket.toString());
-                
+
                 // create a PrintWriter and cache it in a Map 
                 synchronized (outputWriters) {
                     outputWriters.put(socket, new PrintWriter(socket.getOutputStream(), true));
@@ -79,14 +76,15 @@ public class ChatServer {
                 // handle client in new thread
                 tasks.execute(new ChatServerWorker(socket, this));
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.fatal(e.toString());
             throw e;
-        } 
+        }
     }
-        
+
     /**
      * Closes a single client connection
+     *
      * @param s socket to close
      */
     public void closeConnection(Socket s) {
@@ -99,19 +97,20 @@ public class ChatServer {
             }
         }
     }
-    
+
     /**
      * Sends a message to all connected clients
+     *
      * @param line the message to be sent
      */
     void sendToAll(String line) {
         synchronized (outputWriters) {
-            for (PrintWriter pw: outputWriters.values()) {
+            for (PrintWriter pw : outputWriters.values()) {
                 pw.println(line);
             }
         }
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -119,7 +118,6 @@ public class ChatServer {
         ChatServer server = new ChatServer();
         server.start();
     }
-   
     private int port;
     private final Map<Socket, PrintWriter> outputWriters;
     private static final int defaultPort = 55555;

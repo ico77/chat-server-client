@@ -72,6 +72,7 @@ public class ChatClient implements Runnable {
      */
     @Override
     public void run() {
+        String incomingMessage;
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             while (true) {
@@ -107,13 +108,16 @@ public class ChatClient implements Runnable {
         public void actionPerformed(ActionEvent e) {
             logger.debug("Thread info {}", Thread.currentThread().toString());
             logger.debug("ActionEvent info {}", e);
-            sendMessage(view.getMessage());
+                        
+            String nickname = view.getNickname();
+            if (nickname.isEmpty()) nickname = "Unknown user";
+            
+            sendMessage(nickname + " says: " + view.getMessage());
         }
     }
     
     private Socket socket;
     private PrintWriter writer;
-    private String incomingMessage;
     private ChatClientView view;
     private static final Logger logger = LogManager.getLogger(ChatClient.class.getName());
 }

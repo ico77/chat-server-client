@@ -167,6 +167,19 @@ public class ChatClientView extends javax.swing.JFrame {
                 jInputMessageTextFieldFocusGained(evt);
             }
         });
+        jInputMessageTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                manageJInputMessageTextField();
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                manageJInputMessageTextField();
+            }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }
+        });
 
         jSendMessageButton.setText("Send Message");
         jSendMessageButton.setToolTipText("");
@@ -255,6 +268,18 @@ public class ChatClientView extends javax.swing.JFrame {
     }
 
     /**
+     * Manages the components in the start dialog depending whether the port value is a number.
+     *
+     */
+    private void manageJInputMessageTextField() {
+        if (jInputMessageTextField.getText().isEmpty()) {
+            jSendMessageButton.setEnabled(false);
+        } else {
+            jSendMessageButton.setEnabled(true);
+        }
+    }
+    
+    /**
      * Make the start dialog visible
      *
      */
@@ -321,6 +346,30 @@ public class ChatClientView extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Gets the nickname from the text input control. If the method is not invoked on the EDT, schedule a Runnable on the
+     * EDT that will read the message and wait for the result
+     */
+    public String getNickname() {
+        if (EventQueue.isDispatchThread()) {
+            return jNicknameTextField.getText();
+        } else {
+            final ItemHolder holder = new ItemHolder();
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.set(jNicknameTextField.getText());
+                    }
+                });
+            } catch (InterruptedException | InvocationTargetException ex) {
+                logger.error(ex);
+                showErrorDialogAndQuit(ex);
+            }
+            return (String) holder.get();
+        }
+    }
+    
     /**
      * Gets the Server URL string from the text input control. If the method is not invoked on the EDT, schedule a
      * Runnable on the EDT that will read the value and wait for the result

@@ -22,10 +22,13 @@ log4j-api-2.0-beta4.jar
 log4j-core-2.0-beta4.jar
 
 **Run**  
-After building and packaging the project use the following commands to run the
+After building and packaging the project, use the following commands to run the
 server and client:  
 Server: `java -classpath JavaChat.jar:lib/* hr.ivica.chat.server.ChatServer`  
 Client: `java -classpath JavaChat.jar:lib/* hr.ivica.chat.client.ChatClientView`  
   
-The above commands assume the prerequisite jar files are placed in lib/ relative to JavaChat
+The above commands assume the prerequisite jar files are placed in lib/
+relative to JavaChat.  
+  
+  ***Note:*** Use ";" instead of ":" on Windows systems when defining the classpath.
 
