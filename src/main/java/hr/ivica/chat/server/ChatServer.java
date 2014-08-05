@@ -27,33 +27,11 @@ public class ChatServer {
      * Initializes ChatServer
      *
      */
-    public ChatServer() {
-        Properties properties = loadProperties();
-
-        this.port = Integer.parseInt(properties.getProperty("port"));
-        this.outputWriters = new HashMap<>();
-
-
+    public ChatServer(int port) {
+        this.port = port;
     }
 
-    /**
-     * Loads properties which are used to configure the server
-     *
-     * @return properties
-     */
-    private Properties loadProperties() {
-        Properties properties = new Properties();
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("server_config.properties");
-
-        try {
-            properties.load(in);
-        } catch (IOException e) {
-            properties.setProperty("port", String.valueOf(defaultPort));
-            logger.error(e);
-            logger.info("Using default values fo configuring the server");
-        }
-        return properties;
-    }
+    
 
     /**
      * Starts the server by opening a server socket and listening for connections
@@ -112,14 +90,33 @@ public class ChatServer {
     }
 
     /**
+     * Loads properties which are used to configure the server
+     *
+     * @return properties
+     */
+    private static Properties loadProperties() {
+        Properties properties = new Properties();
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("server_config.properties");
+
+        try {
+            properties.load(in);
+        } catch (IOException e) {
+            logger.error("Error loading properties: " + e.getMessage(), e);
+        }
+        return properties;
+    }
+    
+    /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        ChatServer server = new ChatServer();
+        Properties properties = loadProperties();
+        Integer port = Integer.parseInt(properties.getProperty("port"));
+        
+        ChatServer server = new ChatServer(port);
         server.start();
     }
     private int port;
-    private final Map<Socket, PrintWriter> outputWriters;
-    private static final int defaultPort = 55555;
+    private final Map<Socket, PrintWriter> outputWriters = new HashMap<>();
     private static Logger logger = LogManager.getLogger(ChatServer.class.getName());
 }

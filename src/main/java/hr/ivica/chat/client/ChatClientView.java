@@ -489,7 +489,7 @@ public class ChatClientView extends javax.swing.JFrame {
 
         ChatClientView clientGUI = (ChatClientView) holder.get();
         // Create the model/controller class, and start the client listener
-        ChatClient client = new ChatClient(clientGUI.getServerURL(), clientGUI.getPort(), clientGUI);
+        ChatClient client = new ChatClient(clientGUI);
         Thread clientListener = new Thread(client);
         clientListener.setDaemon(true);
         clientListener.start();

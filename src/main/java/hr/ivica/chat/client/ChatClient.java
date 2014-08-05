@@ -39,13 +39,11 @@ public class ChatClient implements Runnable {
     /**
      * Initializes ChatClient
      *
-     * @param host server to connect to
-     * @param port port which will be used to listen for connections
      * @param view object implementing the GUI
      *
      */
-    public ChatClient(String host, int port, ChatClientView view) throws IOException {
-        this(host, port);
+    public ChatClient(ChatClientView view) throws IOException {
+        this(view.getServerURL(), view.getPort());
         this.view = view;
         view.addSendMsgListener(new SendMsgActionListener());
     }

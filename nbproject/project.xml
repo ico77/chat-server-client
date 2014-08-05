@@ -6,13 +6,9 @@
             <name>JavaChat</name>
             <source-roots>
                 <root id="src.java.dir" name="Source Main Java"/>
-                <root id="src.resources.dir" name="Source Main Resources"/>
                 <root id="src.config.dir" name="Source Main Config"/>
             </source-roots>
-            <test-roots>
-                <root id="test.java.dir" name="Source Test Java"/>
-                <root id="test.resources.dir" name="Source Test Resources"/>
-            </test-roots>
+            <test-roots/>
         </data>
     </configuration>
 </project>
